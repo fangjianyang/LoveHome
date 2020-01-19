@@ -76,8 +76,6 @@ func (this *SessionController) Login(){
         return
     }
 
-    // judge if this data is valid
-
     // judge if the data is right
     beego.Info(user)
     if user.Password_hash != resp["password"] {
@@ -87,7 +85,11 @@ func (this *SessionController) Login(){
     }
 
     // add session
-    this.SetSession("name",resp["mobile"].(string))
+    if len(user.Name) > 0{
+        this.SetSession("name",user.Name)
+    }else {
+        this.SetSession("name",resp["mobile"].(string))
+    }
     this.SetSession("mobile",resp["mobile"].(string))
     this.SetSession("user_id",user.Id)
 
