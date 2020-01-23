@@ -54,12 +54,13 @@ func(this *HousesController)PostHousesData(){
     resp := make(map[string]interface{})
     defer this.RetData(resp)
 
-    // get data from client
     reqData := make(map[string]interface{})
+
+    // get data from client
     err1 := json.Unmarshal(this.Ctx.Input.RequestBody, &reqData)
     if err1 != nil{
-        resp["errno"] =12345
-        resp["errmsg"] = "requestBody error"
+        resp["errno"] = models.RECODE_PARAMERR
+        resp["errmsg"] = models.RecodeText(models.RECODE_PARAMERR)
         beego.Info("Unmarshal error")
         return
     }
@@ -123,14 +124,79 @@ func(this *HousesController)PostHousesData(){
     if num == 0 {
         resp["errno"] = models.RECODE_DBERR
         resp["errmsg"] = models.RecodeText(models.RECODE_DBERR)
-         beego.Error("Add faclities data to db error!")
+        beego.Error("Add faclities data to db error!")
         return
     }
     beego.Info("Add faclities success num =  ",num)
-
+    // problem : respData is never used!
     respData := make(map[string]interface{})
     respData["house_id"] = strconv.Itoa(house.Id)
     resp["errno"] = models.RECODE_OK
     resp["errmsg"] = models.RecodeText(models.RECODE_OK)
 }
+
+
+// func(this *HousesController)PostHousesImages(){
+//
+// }
+
+func(this *HousesController)GetHouseDetail(){
+    resp := make(map[string]interface{})
+    defer this.RetData(resp)
+
+    //1 get user_id from session
+    user_id := this.GetSession("user_id")
+
+    //2 get house_id from url
+    house_id := this.Ctx.Input.Param(":id")
+    h_id,err := strconv.Atoi(house_id)
+    if err != nil {
+        resp["errno"] = models.RECODE_PARAMERR
+        resp["errmsg"] = models.RecodeText(models.RECODE_PARAMERR)
+        beego.Error("Get user paramer failed!")
+        return
+    }
+    //3 query house detail from cache
+    // todo
+
+    //4 query house detail from db if 3 is failed
+    ormHandel := orm.NewOrm()
+    house := models.House{Id:h_id}
+
+    if err := ormHandel.Read(&house); err != nil{
+        resp["errno"] = models.RECODE_DBERR
+        resp["errmsg"] = models.RecodeText(models.RECODE_DBERR)
+        beego.Error("Read data from db error!")
+        return
+    }
+    // load data to house struct
+    ormHandel.LoadRelated(&house,"Area")
+    ormHandel.LoadRelated(&house,"User")
+    ormHandel.LoadRelated(&house,"Images")
+    ormHandel.LoadRelated(&house,"Facilities")
+
+    user := models.User{Id:user_id.(int)}
+    house.User = &user
+
+    facs := []string{}
+	for _, fac := range house.Facilities {
+		fid := strconv.Itoa(fac.Id)
+		facs = append(facs, fid)
+	}
+
+
+    respData := make(map[string]interface{})
+    respData["house"] = house
+    resp["data"] = respData
+    resp["faclities"] = facs
+    resp["errno"] = models.RECODE_OK
+    resp["errmsg"] = models.RecodeText(models.RECODE_OK)
+
+    // ormHandel.QueryTable("")
+
+    //5 store data to cache
+
+    // package data to user
+}
+
 

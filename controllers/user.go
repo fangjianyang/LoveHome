@@ -212,50 +212,50 @@ func (this *UserController)  AuthUser(){
 }
 
 func (this *UserController)PostAuth(){
-     resp := make(map[string]interface{})
-     defer this.RetData(resp)
+    resp := make(map[string]interface{})
+    defer this.RetData(resp)
 
-      // gain the userid from session
-      user_id := this.GetSession("user_id")
-      beego.Info("Get user id from Session :",user_id.(int))
+    // gain the userid from session
+    user_id := this.GetSession("user_id")
+    beego.Info("Get user id from Session :",user_id.(int))
 
 
-     // get data from the client
-     UserInfo := make(map[string]string)
+    // get data from the client
+    UserInfo := make(map[string]string)
 
-     if err := json.Unmarshal(this.Ctx.Input.RequestBody, &UserInfo); err != nil {
+    if err := json.Unmarshal(this.Ctx.Input.RequestBody, &UserInfo); err != nil {
         resp["errno"] = models.RECODE_PARAMERR
         resp["errmsg"] = models.RecodeText(models.RECODE_PARAMERR)
         beego.Error("Get user name failed !")
         return
-     }
+    }
 
-     // update the db where uerid = "xxx"
-     ormHandel := orm.NewOrm()
-     user := models.User{Id:user_id.(int)}
-     dbErr := ormHandel.Read(&user)
-     if dbErr != nil {
-         resp["errno"] = models.RECODE_DBERR
-         resp["errmsg"] = models.RecodeText(models.RECODE_DBERR)
-         beego.Error("Read user info from mysql failed !")
-         return
-     }
-     user.Real_name = UserInfo["real_name"]
-     user.Id_card = UserInfo["id_card"]
+    // update the db where uerid = "xxx"
+    ormHandel := orm.NewOrm()
+    user := models.User{Id:user_id.(int)}
+    dbErr := ormHandel.Read(&user)
+    if dbErr != nil {
+        resp["errno"] = models.RECODE_DBERR
+        resp["errmsg"] = models.RecodeText(models.RECODE_DBERR)
+        beego.Error("Read user info from mysql failed !")
+        return
+    }
+    user.Real_name = UserInfo["real_name"]
+    user.Id_card = UserInfo["id_card"]
 
-     _, upErr :=ormHandel.Update(&user)
-     if upErr != nil {
-         resp["errno"] = models.RECODE_DBERR
-         resp["errmsg"] = models.RecodeText(models.RECODE_DBERR)
-         beego.Error("update user name to mysql failed !")
-         return
-     }
+    _, upErr :=ormHandel.Update(&user)
+    if upErr != nil {
+        resp["errno"] = models.RECODE_DBERR
+        resp["errmsg"] = models.RecodeText(models.RECODE_DBERR)
+        beego.Error("update user name to mysql failed !")
+        return
+    }
 
-     // change session
-     this.SetSession("user_id",user.Id)
+    // change session
+    this.SetSession("user_id",user.Id)
 
-     // package data to client
-     resp["errno"] = models.RECODE_OK
-     resp["errmsg"] = models.RecodeText(models.RECODE_OK)
+    // package data to client
+    resp["errno"] = models.RECODE_OK
+    resp["errmsg"] = models.RecodeText(models.RECODE_OK)
 }
 
