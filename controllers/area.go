@@ -24,15 +24,15 @@ func (c *AreaController) GetArea() {
     beego.Info("AreaController GetArea")
 
     resp := make(map[string]interface{})
-    resp["errno"] =0
-    resp["errmsg"] = "success"
+    resp["errno"] = models.RECODE_OK
+    resp["errmsg"] = models.RecodeText(models.RECODE_OK)
     defer c.RetData(resp)
 
 
     cacheHandel, err := cache.NewCache("redis", `{"key":"lovehome","conn":":6379","dbNum":"0"}`)
     if err != nil{
-        resp["errno"] =12110
-        resp["errmsg"] = "query err"
+        resp["errno"] = models.RECODE_DBERR
+        resp["errmsg"] = models.RecodeText(models.RECODE_DBERR)
         return
     }
 
@@ -59,15 +59,15 @@ func (c *AreaController) GetArea() {
     if errDb != nil{
         beego.Info("query data from db error!")
 
-        resp["errno"] =12110
-        resp["errmsg"] = "query err"
+        resp["errno"] = models.RECODE_DBERR
+        resp["errmsg"] = models.RecodeText(models.RECODE_DBERR)
         return
     }
     if num == 0{
         beego.Info("query no data from db !")
 
-        resp["errno"] =12111
-        resp["errmsg"] = "query no data"
+        resp["errno"] = models.RECODE_DBERR
+        resp["errmsg"] = models.RecodeText(models.RECODE_DBERR)
         return
     }
 

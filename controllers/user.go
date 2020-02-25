@@ -27,8 +27,8 @@ func (this *UserController)Reg(){
     // get data from client
     err1 := json.Unmarshal(this.Ctx.Input.RequestBody, &resp)
     if err1 != nil{
-    	resp["errno"] =12345
-    	resp["errmsg"] = "requestBody error"
+    	resp["errno"] = models.RECODE_REQERR
+    	resp["errmsg"] = models.RecodeText(models.RECODE_REQERR)
     	beego.Info("Unmarshal error")
         return
     }
@@ -43,8 +43,8 @@ func (this *UserController)Reg(){
 
     _,err := ormHandel.Insert(&user)
     if err != nil{
-        resp["errno"] = 40012345
-        resp["errmsg"] = "reg err"
+    	resp["errno"] = models.RECODE_USERERR
+    	resp["errmsg"] = models.RecodeText(models.RECODE_USERERR)
         beego.Info("Insert error")
         return
     }
@@ -62,8 +62,8 @@ func (this *UserController) PostAvatar(){
     defer this.RetData(resp)
     fileData, hd, err := this.GetFile("avatar")
     if err != nil {
-        resp["errno"] = 40012345
-        resp["errmsg"] = "reg err"
+    	resp["errno"] = models.RECODE_USERERR
+    	resp["errmsg"] = models.RecodeText(models.RECODE_USERERR)
         return
     }
     // get suffix of the file

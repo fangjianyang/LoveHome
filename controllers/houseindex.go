@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/astaxie/beego"
+    "LoveHome/models"
 )
 
 type HouseIndexController struct {
@@ -16,7 +17,7 @@ func(this*HouseIndexController)RetData(resp map[string]interface{}){
 func (this*HouseIndexController)GetHouseIndex(){
 	resp := make(map[string]interface{})
 
-	resp["errno"] =12345
-	resp["errmsg"] = "success"
+    resp["errno"] = models.RECODE_OK
+    resp["errmsg"] = models.RecodeText(models.RECODE_OK)
 	this.RetData(resp)
 }
